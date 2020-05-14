@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -56,14 +56,21 @@ export default function Header() {
   const loginNow = () => {
     if (isLoggedIn) {
       //clear token
+      localStorage.removeItem("jwt");
+      localStorage.removeItem("userId");
       history.push(routes.login);
       setHeaderName("");
+      loginFunction(false);
     } else {
     }
   };
 
   const homeButton = () => {
     history.push(routes.home);
+  };
+
+  const cartButton = () => {
+    history.push(routes.cart);
   };
 
   const myAccount = () => {
@@ -88,15 +95,20 @@ export default function Header() {
               Lets Learn &nbsp; <MenuBookIcon />
             </div>
           </Typography>
-          <IconButton style={{ fill: "green" }} aria-label="cart">
-            <StyledBadge badgeContent={0} color="secondary">
-              <ShoppingCartIcon />
-            </StyledBadge>
-          </IconButton>
-          <AccountCircleIcon onClick={myAccount} />
-          <Button color="inherit" onClick={loginNow}>
-            {headerName}
-          </Button>
+          {isLoggedIn && (
+            <Fragment>
+              {" "}
+              <IconButton style={{ fill: "green" }} aria-label="cart">
+                <StyledBadge badgeContent={0} color="secondary">
+                  <ShoppingCartIcon onClick={cartButton} />
+                </StyledBadge>
+              </IconButton>
+              <AccountCircleIcon onClick={myAccount} />
+              <Button color="inherit" onClick={loginNow}>
+                {headerName}
+              </Button>{" "}
+            </Fragment>
+          )}
         </Toolbar>
       </AppBar>
     </div>

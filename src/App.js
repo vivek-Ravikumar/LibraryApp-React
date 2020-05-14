@@ -8,16 +8,22 @@ import Header from "../src/components/header";
 import { Switch, Route, useHistory, useLocation } from "react-router-dom";
 import routes from "../src/Routes/routes";
 import Footer from "./components/footer";
+import useLoggedInUserDataProvider from "./store/hooks/useLogggedInUserData";
 
 export default function App() {
   const history = useHistory();
   const location = useLocation();
+  const {
+    loggedInUserId,
+    loggedInUserIdFunction
+  } = useLoggedInUserDataProvider();
 
   useEffect(() => {
+    loggedInUserIdFunction(localStorage.getItem("userId"));
     if (location.pathname === "/") {
       history.push(routes.home);
     }
-  }, []);
+  }, [location, history, loggedInUserIdFunction]);
 
   return (
     <div className="App">

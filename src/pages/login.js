@@ -13,6 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import useLoginProvider from "../store/hooks/useLoginProvider";
+import useLoggedInUserDataProvider from "../store/hooks/useLogggedInUserData";
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -36,9 +37,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignIn() {
   const { isLoggedIn, loginFunction } = useLoginProvider();
+  const {
+    loggedInUserId,
+    loggedInUserIdFunction
+  } = useLoggedInUserDataProvider();
   const classes = useStyles();
   const [action, setAction] = useState("log In");
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPwd] = useState("");
   const [cPwd, setCPwd] = useState("");
   const history = useHistory();
@@ -46,6 +52,7 @@ export default function SignIn() {
   const enterEmail = event => setEmail(event.target.value);
   const enterPwd = event => setPwd(event.target.value);
   const enterCPwd = event => setCPwd(event.target.value);
+  const enterName = event => setName(event.target.value);
 
   const signup = () => {
     setAction("sign Up");
@@ -53,53 +60,70 @@ export default function SignIn() {
 
   const onSubmit = event => {
     event.preventDefault();
-    console.log(action);
-    const userData = {
-      email,
-      password
-    };
-    if (action === "log In") {
-      try {
-        fetch("https://3ygjr.sse.codesandbox.io/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/JSON"
-          },
-          body: JSON.stringify(userData)
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === "success") {
-              alert("login success");
-              loginFunction(true);
-              history.push(routes.home);
-            } else {
-              alert(data.status);
-            }
-          });
-      } catch (e) {
-        console.error(e);
-        alert("something went wrong");
-      }
-    } else if (action === "sign Up") {
-      try {
-        fetch("https://3ygjr.sse.codesandbox.io/login/signup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/JSON"
-          },
-          body: JSON.stringify(userData)
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === "success") {
-              alert("signup success");
-              loginFunction(true);
-              history.push(routes.home);
-            }
-          });
-      } catch (e) {
-        console.error(e);
+    if (email === "" || password === "") {
+      alert("please enter all required fields");
+    } else {
+      const userData = {
+        name,
+        email,
+        password
+      };
+      if (action === "log In") {
+        try {
+          fetch("https://jh783.sse.codesandbox.io/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/JSON"
+            },
+            body: JSON.stringify(userData)
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === "success") {
+                localStorage.setItem("jwt", data.jwt);
+                console.log(data.userData);
+                loginFunction();
+                loggedInUserIdFunction(data.userData._id);
+                localStorage.setItem("userId", data.userData._id);
+                console.log(localStorage.getItem("userId"));
+                history.push(routes.home);
+              } else {
+                alert(data.status);
+              }
+            });
+        } catch (e) {
+          console.error(e);
+          alert("something went wrong");
+        }
+      } else if (action === "sign Up") {
+        if (name === "") {
+          alert("please enter Name");
+        } else if (password !== cPwd) {
+          alert("passwords dont match");
+        } else {
+          try {
+            console.log(userData);
+            fetch("https://jh783.sse.codesandbox.io/login/signup", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/JSON"
+              },
+              body: JSON.stringify(userData)
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.status === "success") {
+                  alert("signup success");
+                  loginFunction(true);
+                  history.push(routes.home);
+                } else {
+                  alert(data.status);
+                }
+              });
+          } catch (e) {
+            console.error(e);
+          }
+        }
       }
     }
   };
@@ -114,7 +138,22 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           {action.to}
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form}>
+          {action === "sign Up" && (
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="name"
+              label="Name"
+              name="name"
+              autoComplete="name"
+              autoFocus
+              value={name}
+              onChange={enterName}
+            />
+          )}
           <TextField
             variant="outlined"
             margin="normal"

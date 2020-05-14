@@ -9,12 +9,13 @@ import Grid from "@material-ui/core/Grid";
 
 const Home = () => {
   const [bookList, setBookList] = useState([]);
-  const { isLoggedIn ,loginFunction } = useLoginProvider();
+  const { isLoggedIn, loginFunction } = useLoginProvider();
   const history = useHistory();
   // console.log(isLoggedIn);
   useEffect(() => {
+    loginFunction();
     if (isLoggedIn) {
-      const bookdata = fetch("https://3ygjr.sse.codesandbox.io/books", {
+      const bookdata = fetch("https://jh783.sse.codesandbox.io/books", {
         mode: "cors"
       })
         .then(response => {
@@ -28,7 +29,7 @@ const Home = () => {
     } else {
       history.push(routes.login);
     }
-  }, []);
+  }, [isLoggedIn, history, loginFunction]);
 
   return (
     <Fragment>

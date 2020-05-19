@@ -10,20 +10,28 @@ import Grid from "@material-ui/core/Grid";
 const Home = () => {
   const [bookList, setBookList] = useState([]);
   const { isLoggedIn, loginFunction } = useLoginProvider();
+  const jwtToken = localStorage.getItem("jwt");
   const history = useHistory();
   // console.log(isLoggedIn);
   useEffect(() => {
     loginFunction();
     if (isLoggedIn) {
       const bookdata = fetch("https://jh783.sse.codesandbox.io/books", {
-        mode: "cors"
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${jwtToken}`
+        }
       })
         .then(response => {
           return response.json();
         })
         .then(data => {
-          //console.log(data);
-          setBookList(data.books);
+          if (data.status === "success") {
+            setBookList(data.books);
+          } else {
+            alert("token Error");
+          }
         })
         .catch(console.error);
     } else {

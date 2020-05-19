@@ -100,7 +100,7 @@ export default function Header() {
               {" "}
               <IconButton style={{ fill: "green" }} aria-label="cart">
                 <StyledBadge badgeContent={0} color="secondary">
-                  <ShoppingCartIcon onClick={cartButton} />
+                  <ShoppingCartIcon className='cartIcon' onClick={cartButton} />
                 </StyledBadge>
               </IconButton>
               <AccountCircleIcon onClick={myAccount} />
